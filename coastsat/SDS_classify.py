@@ -137,7 +137,7 @@ def label_images(metadata,settings):
             ax.imshow(im_RGB)
             implot = ax.imshow(im_viz, alpha=0.6)            
             filename = filenames[i][:filenames[i].find('.')][:-4] 
-            ax.set_title(filename)
+            # ax.set_title(filename)
            
             ##############################################################
             # select image to label
@@ -322,12 +322,12 @@ def label_images(metadata,settings):
                 im_labels[selector_land.im_bool] = settings['labels']['other land features']  
                 
                 # save labelled image
-                ax.set_title(filename)
+                # ax.set_title(filename)
                 fig.canvas.draw_idle()                         
                 fp = os.path.join(filepath_train,settings['inputs']['sitename'])
                 if not os.path.exists(fp):
                     os.makedirs(fp)
-                fig.savefig(os.path.join(fp,filename+'.jpg'), dpi=150)
+                fig.savefig(os.path.join(fp,filename+'.png'), dpi=150)
                 ax.clear()
                 # save labels and features
                 features = dict([])
@@ -611,11 +611,11 @@ def evaluate_classifier(classifier, metadata, settings):
             ax[0].axis('off')
             ax[1].axis('off')
             filename = filenames[i][:filenames[i].find('.')][:-4] 
-            ax[0].set_title(filename)  
+            # ax[0].set_title(filename)  
             ax[0].plot(sl_pix[:,0], sl_pix[:,1], 'k.', markersize=3)
             ax[1].plot(sl_pix[:,0], sl_pix[:,1], 'k.', markersize=3)
             # save figure
-            fig.savefig(os.path.join(fp,settings['inputs']['sitename'] + filename[:19] +'.jpg'), dpi=150)
+            fig.savefig(os.path.join(fp,settings['inputs']['sitename'] + filename[:19] +'.png'), dpi=150)
             # clear axes
             for cax in fig.axes:
                cax.clear()
