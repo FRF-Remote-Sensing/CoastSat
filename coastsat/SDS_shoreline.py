@@ -651,7 +651,7 @@ def show_detection(im_ms, cloud_mask, im_labels, shoreline,image_epsg, georef,
     for ax in fig.axes:
         ax.clear()
 
-    return skip_image
+    return skip_image, im_RGB
 
 
 def extract_shorelines(metadata, settings):
@@ -726,6 +726,7 @@ def extract_shorelines(metadata, settings):
         output_geoaccuracy = []# georeferencing accuracy of the images
         output_idxkeep = []    # index that were kept during the analysis (cloudy images are skipped)
         output_imClassifs = []
+        output_imRGBs = []
 
         # load classifiers and
         if satname in ['L5','L7','L8']:
@@ -807,7 +808,7 @@ def extract_shorelines(metadata, settings):
                 date = filenames[i][:19]
                 if not settings['check_detection']:
                     plt.ioff() # turning interactive plotting off
-                skip_image = show_detection(im_ms, cloud_mask, im_labels, shoreline,
+                skip_image, im_RGB = show_detection(im_ms, cloud_mask, im_labels, shoreline,
                                             image_epsg, georef, settings, date, satname)
                 # if the user decides to skip the image, continue and do not save the mapped shoreline
                 if skip_image:
@@ -821,7 +822,7 @@ def extract_shorelines(metadata, settings):
             output_geoaccuracy.append(metadata[satname]['acc_georef'][i])
             output_idxkeep.append(i)
             output_imClassifs.append(im_classif)
-
+            output_imRGBs.append(im_RGB)
         # create dictionnary of output
         output[satname] = {
                 'dates': output_timestamp,
@@ -830,7 +831,8 @@ def extract_shorelines(metadata, settings):
                 'cloud_cover': output_cloudcover,
                 'geoaccuracy': output_geoaccuracy,
                 'idx': output_idxkeep,
-                'imClassifs': output_imClassifs
+                'imClassifs': output_imClassifs,
+                'imRGBs': output_imRGBs
                 }
         print('')
 
