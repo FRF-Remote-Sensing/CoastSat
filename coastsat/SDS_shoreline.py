@@ -814,6 +814,7 @@ def extract_shorelines(metadata, settings):
                 if skip_image:
                     continue
 
+
             # append to output variables
             output_timestamp.append(metadata[satname]['dates'][i])
             output_shoreline.append(shoreline)
@@ -823,6 +824,20 @@ def extract_shorelines(metadata, settings):
             output_idxkeep.append(i)
             output_imClassifs.append(im_classif)
             output_imRGBs.append(im_RGB)
+
+        # AMC changes 2/4/21
+        # Reduce size of output lists to only include 'good' classifications according to NN
+        try:
+            goodbad_classifier = Classify_goodbad()
+            output_timestamp, output_shoreline, output_filename,
+            output_cloudcover, output_geoaccuracy, output_idxkeep,
+            output_imClassifs, output_imRGBs = goodbad_classifier.main(
+                output_timestamp, output_shoreline, output_filename,
+                output_cloudcover, output_geoaccuracy, output_idxkeep,
+                output_imClassifs, output_imRGBs)
+        except:
+            print("Goodbad classifier error, using all classified images for calculations.")
+
         # create dictionnary of output
         output[satname] = {
                 'dates': output_timestamp,
