@@ -31,6 +31,10 @@ import pickle
 # CoastSat modules
 from coastsat import SDS_tools, SDS_preprocess
 
+# Goodbad classifier module
+
+from .classify_goodbad import Classify_goodbad
+
 np.seterr(all='ignore') # raise/ignore divisions by 0 and nans
 
 ###################################################################################################
@@ -651,7 +655,7 @@ def show_detection(im_ms, cloud_mask, im_labels, shoreline,image_epsg, georef,
     for ax in fig.axes:
         ax.clear()
 
-    return skip_image, im_RGB
+    return skip_image, im_RGB, im_class
 
 
 def extract_shorelines(metadata, settings):
@@ -727,6 +731,7 @@ def extract_shorelines(metadata, settings):
         output_idxkeep = []    # index that were kept during the analysis (cloudy images are skipped)
         output_imClassifs = []
         output_imRGBs = []
+        output_imclassRGBs = []
 
         # load classifiers and
         if satname in ['L5','L7','L8']:
@@ -808,7 +813,7 @@ def extract_shorelines(metadata, settings):
                 date = filenames[i][:19]
                 if not settings['check_detection']:
                     plt.ioff() # turning interactive plotting off
-                skip_image, im_RGB = show_detection(im_ms, cloud_mask, im_labels, shoreline,
+                skip_image, im_RGB, im_classRGB = show_detection(im_ms, cloud_mask, im_labels, shoreline,
                                             image_epsg, georef, settings, date, satname)
                 # if the user decides to skip the image, continue and do not save the mapped shoreline
                 if skip_image:
@@ -824,31 +829,58 @@ def extract_shorelines(metadata, settings):
             output_idxkeep.append(i)
             output_imClassifs.append(im_classif)
             output_imRGBs.append(im_RGB)
+            output_imclassRGBs.append(im_classRGB)
+
+        """print("Timestamp: ", np.shape(output_timestamp))
+        print(output_timestamp)
+        print("Shoreline: ", np.shape(output_shoreline))
+        #print(output_shoreline)
+        print("Filename: ",np.shape(output_filename))
+        print(output_filename)
+        print("Cloud cover: ",np.shape(output_cloudcover))
+        print(output_cloudcover)
+        print("Geoaccuracy: ",np.shape(output_geoaccuracy))
+        print(output_geoaccuracy)
+        print("IDXkeep: ",np.shape(output_idxkeep))
+        print(output_idxkeep)
+        print("Classified Images: ",np.shape(output_imClassifs))
+        print("RGB Images: ", np.shape(output_imRGBs))"""
 
         # AMC changes 2/4/21
         # Reduce size of output lists to only include 'good' classifications according to NN
         try:
             goodbad_classifier = Classify_goodbad()
-            output_timestamp, output_shoreline, output_filename,
-            output_cloudcover, output_geoaccuracy, output_idxkeep,
-            output_imClassifs, output_imRGBs = goodbad_classifier.main(
+
+            noutput_timestamp, noutput_shoreline, noutput_filename, \
+            noutput_cloudcover, noutput_geoaccuracy, noutput_idxkeep, \
+            noutput_imClassifs, noutput_imRGBs, noutput_imclassRGBs = \
+                goodbad_classifier.main(
                 output_timestamp, output_shoreline, output_filename,
                 output_cloudcover, output_geoaccuracy, output_idxkeep,
-                output_imClassifs, output_imRGBs)
+                output_imClassifs, output_imRGBs, output_imclassRGBs)
+            output[satname] = {
+                'dates': noutput_timestamp,
+                'shorelines': noutput_shoreline,
+                'filename': noutput_filename,
+                'cloud_cover': noutput_cloudcover,
+                'geoaccuracy': noutput_geoaccuracy,
+                'idx': noutput_idxkeep,
+                'imClassifs': noutput_imClassifs,
+                'imRGBs': noutput_imRGBs
+            }
+            print("Removed " + str(len(output_filename) - len(noutput_filename)) + " of " + str(len(output_filename)))
         except:
-            print("Goodbad classifier error, using all classified images for calculations.")
-
-        # create dictionnary of output
-        output[satname] = {
-                'dates': output_timestamp,
-                'shorelines': output_shoreline,
-                'filename': output_filename,
-                'cloud_cover': output_cloudcover,
-                'geoaccuracy': output_geoaccuracy,
-                'idx': output_idxkeep,
-                'imClassifs': output_imClassifs,
-                'imRGBs': output_imRGBs
-                }
+            print("Good/bad classifier error, using all classified images for calculations.")
+            output[satname] = {
+                    'dates': output_timestamp,
+                    'shorelines': output_shoreline,
+                    'filename': output_filename,
+                    'cloud_cover': output_cloudcover,
+                    'geoaccuracy': output_geoaccuracy,
+                    'idx': output_idxkeep,
+                    'imClassifs': output_imClassifs,
+                    'imRGBs': output_imRGBs
+                    }
         print('')
 
     # close figure window if still open

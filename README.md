@@ -1,6 +1,31 @@
 # CoastSat
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2779293.svg)](https://doi.org/10.5281/zenodo.2779293)
+To Nick:
+When trying to run the updated CoastSat program you need to install a few dependencies that depend on your setup.
+
+Assuming:
+1. You're on Windows
+2. You use Anaconda
+3. You don't have a NVIDIA GPU (or CUDA/cudNN), 
+
+
+then you will want to install the cpu only version of pytorch with the command:
+conda install pytorch torchvision torchaudio cpuonly -c pytorch
+
+Also install the following libraries via pip:
+pip install opencv-python
+pip install tensorflow
+
+You will also need to download the model (at a TBD link) into the CoastSat/coastsat/chk/ folder.
+
+After this you should be able to run example.py (it ran on my setup). The current version only works with S2 data.
+Assuming everything works as we intend with the LZMST tool you should be able to run it with this updated version of CoastSat,
+as this should provide everything you got previously from SDS_shoreline.extract_shorelines, but just less of it.
+
+Let me know if you have any problems (certainly will). 
+
+
+1. [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2779293.svg)](https://doi.org/10.5281/zenodo.2779293)
 [![Join the chat at https://gitter.im/CoastSat/community](https://badges.gitter.im/spyder-ide/spyder.svg)](https://gitter.im/CoastSat/community)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![GitHub release](https://img.shields.io/github/release/kvos/CoastSat)](https://GitHub.com/kvos/CoastSat/releases/)
